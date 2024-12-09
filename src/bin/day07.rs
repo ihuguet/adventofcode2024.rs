@@ -31,6 +31,8 @@ fn main() {
 fn operation_equals_part1(accum: u64, rest: &[u64], result: u64) -> bool {
     if rest.len() == 0 {
         accum == result
+    } else if accum > result {
+        false
     } else {
         let accum_sum = accum + rest[0];
         let accum_mul = accum * rest[0];
@@ -43,17 +45,25 @@ fn operation_equals_part1(accum: u64, rest: &[u64], result: u64) -> bool {
 fn operation_equals_part2(accum: u64, rest: &[u64], result: u64) -> bool {
     if rest.len() == 0 {
         accum == result
+    } else if accum > result {
+        false
     } else {
         let accum_sum = accum + rest[0];
         let accum_mul = accum * rest[0];
-        let accum_cat = (accum.to_string() + &rest[0].to_string())
-            .parse::<u64>()
-            .unwrap();
+        let accum_cat = concat(accum, rest[0]);
         let rest = &rest[1..];
         operation_equals_part2(accum_sum, rest, result)
             || operation_equals_part2(accum_mul, rest, result)
             || operation_equals_part2(accum_cat, rest, result)
     }
+}
+
+fn concat(n1: u64, n2: u64) -> u64 {
+    let mut multiplier = 10;
+    while multiplier <= n2 {
+        multiplier *= 10;
+    }
+    n1 * multiplier + n2
 }
 
 impl FromStr for Op {
