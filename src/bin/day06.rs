@@ -82,23 +82,21 @@ fn is_loop(grid: &VecGrid<Cell>, mut guard: Point<isize>) -> bool {
 }
 
 fn parse_input() -> (Point<isize>, VecGrid<Cell>) {
-    let mut guard = (0, 0).into();
-    let grid = aoc::input::read_lines("day06")
-        .enumerate()
-        .map(|(y, line)| {
-            line.chars()
-                .enumerate()
-                .map(|(x, ch)| match ch {
-                    '#' => Cell::Obstacle,
-                    '.' => Cell::Unvisited,
-                    '^' => {
-                        guard = (y as isize, x as isize).into();
-                        Cell::Unvisited
-                    }
-                    _ => panic!("Unexpected char {ch}"),
-                })
-                .collect()
-        })
-        .collect();
+    let grid: VecGrid<Cell> = aoc::input::parse_chars_into("day06").collect();
+    let guard = grid
+        .iter_grid()
+        .find_map(|(p, v)| if *v == Cell::Visited { Some(p) } else { None })
+        .unwrap();
     (guard, grid)
+}
+
+impl From<char> for Cell {
+    fn from(value: char) -> Self {
+        match value {
+            '#' => Cell::Obstacle,
+            '.' => Cell::Unvisited,
+            '^' => Cell::Visited,
+            _ => panic!("Unexpected char {value}"),
+        }
+    }
 }

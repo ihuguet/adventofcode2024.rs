@@ -80,6 +80,51 @@ where
     })
 }
 
+pub fn parse_chars_into<T>(day_xx: &str) -> impl Iterator<Item = Vec<T>>
+where
+    T: From<char>,
+{
+    read_lines(day_xx).map(|line| line.chars().map(|ch| ch.into()).collect())
+}
+
+pub fn parse_chars_into_safe<T>(
+    day_xx: &str,
+) -> impl Iterator<Item = Result<Vec<T>, <T as TryFrom<char>>::Error>>
+where
+    T: TryFrom<char>,
+{
+    read_lines(day_xx).map(|line| line.chars().map(|ch| ch.try_into()).collect())
+}
+
+pub fn parse_chars_to_digit<T>(day_xx: &str, radix: u32) -> impl Iterator<Item = Vec<T>>
+where
+    T: From<u32>,
+{
+    read_lines(day_xx).map(move |line| {
+        line.chars()
+            .map(|ch| ch.to_digit(radix).unwrap().into())
+            .collect()
+    })
+}
+
+pub fn parse_chars_to_digit_safe<T>(
+    day_xx: &str,
+    radix: u32,
+) -> impl Iterator<Item = Result<Vec<T>, ParseAoCInputError<T>>>
+where
+    T: TryFrom<u32>,
+{
+    read_lines(day_xx).map(move |line| {
+        line.chars()
+            .map(|ch| {
+                ch.to_digit(radix)
+                    .and_then(|n| n.try_into().ok())
+                    .ok_or_else(|| ParseAoCInputError::new(&ch.to_string()))
+            })
+            .collect()
+    })
+}
+
 /// Error type that can be used by `impl FromStr for MyType`
 pub struct ParseAoCInputError<T> {
     wrong_str: String,

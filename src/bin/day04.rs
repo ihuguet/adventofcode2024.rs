@@ -1,9 +1,7 @@
 use adventofcode2024 as aoc;
 
 fn main() {
-    let lines: Vec<Vec<char>> = aoc::input::read_lines("day04")
-        .map(|line| line.chars().collect())
-        .collect();
+    let lines: Vec<Vec<char>> = aoc::input::parse_chars_into("day04").collect();
     let y_len = lines.len() as i32;
     let x_len = lines[0].len() as i32;
 

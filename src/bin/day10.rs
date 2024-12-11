@@ -3,7 +3,7 @@ use aoc::space_2D::{Grid, Point, VecGrid};
 use std::collections::{HashMap, HashSet, VecDeque};
 
 fn main() {
-    let grid = parse_input();
+    let grid: VecGrid<u32> = aoc::input::parse_chars_to_digit("day10", 10).collect();
 
     let mut queue: VecDeque<(Point, Point)> = VecDeque::new();
     let mut paths_count: HashMap<Point, u32> = HashMap::new();
@@ -34,10 +34,4 @@ fn main() {
     let sum2: u32 = paths_count.iter().map(|(_, v)| v).sum();
     println!("Part 1: paths={sum1}");
     println!("Part 2: score={sum2}");
-}
-
-fn parse_input() -> VecGrid<u32> {
-    aoc::input::read_lines("day10")
-        .map(|line| line.chars().map(|ch| ch.to_digit(10).unwrap()).collect())
-        .collect()
 }
