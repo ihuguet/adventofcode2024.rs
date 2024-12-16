@@ -1,13 +1,14 @@
 use adventofcode2024 as aoc;
 use aoc::space_2D::{Grid, Point, VecGrid};
 use std::collections::{BTreeSet, BinaryHeap, HashMap};
+use std::rc::Rc;
 
 #[derive(Eq, PartialEq)]
 struct State {
     pos: Point<isize>,
     dir: Point<isize>,
     cost: u32,
-    path: Vec<Point<isize>>,
+    path: Rc<Vec<Point<isize>>>,
 }
 
 fn main() {
@@ -21,14 +22,14 @@ fn main() {
     let mut best_paths = Vec::new();
     let mut min_cost = std::u32::MAX;
     let mut queue = BinaryHeap::new();
-    queue.push(State::new(pos, (0, 1).into(), 0, vec![pos]));
+    queue.push(State::new(pos, (0, 1).into(), 0, Rc::new(vec![pos])));
 
     while let Some(state) = queue.pop() {
         let State {
             pos,
             dir,
             cost,
-            path,
+            mut path,
         } = state;
 
         // Is this the end point?
@@ -36,7 +37,7 @@ fn main() {
             if cost < min_cost {
                 min_cost = cost;
             }
-            best_paths.push(path);
+            best_paths.push(Rc::unwrap_or_clone(path));
             continue;
         }
 
@@ -57,16 +58,16 @@ fn main() {
         }
 
         // Enqueue all possible next movements
+        if grid[pos + rot_cw(dir)] != '#' {
+            queue.push(State::new(pos, rot_cw(dir), cost + 1000, Rc::clone(&path)));
+        }
+        if grid[pos + rot_ccw(dir)] != '#' {
+            queue.push(State::new(pos, rot_ccw(dir), cost + 1000, Rc::clone(&path)));
+        }
         if grid[pos + dir] != '#' {
-            let mut path_new = path.clone();
-            path_new.push(pos + dir);
-            queue.push(State::new(pos + dir, dir, cost + 1, path_new));
-        }
-        if grid[pos + turn_cw(dir)] != '#' {
-            queue.push(State::new(pos, turn_cw(dir), cost + 1000, path.clone()));
-        }
-        if grid[pos + turn_ccw(dir)] != '#' {
-            queue.push(State::new(pos, turn_ccw(dir), cost + 1000, path.clone()));
+            // make_mut will clone only if there are more refs, so we achieve copy on write
+            Rc::make_mut(&mut path).push(pos + dir);
+            queue.push(State::new(pos + dir, dir, cost + 1, path));
         }
     }
 
@@ -75,7 +76,7 @@ fn main() {
     println!("Part 2: points in a best path={}", unique_points.len());
 }
 
-fn turn_cw(dir: Point<isize>) -> Point<isize> {
+fn rot_cw(dir: Point<isize>) -> Point<isize> {
     match dir.to_tuple() {
         (1, 0) => (0, -1),
         (0, -1) => (-1, 0),
@@ -86,7 +87,7 @@ fn turn_cw(dir: Point<isize>) -> Point<isize> {
     .into()
 }
 
-fn turn_ccw(dir: Point<isize>) -> Point<isize> {
+fn rot_ccw(dir: Point<isize>) -> Point<isize> {
     match dir.to_tuple() {
         (1, 0) => (0, 1),
         (0, -1) => (1, 0),
@@ -98,7 +99,7 @@ fn turn_ccw(dir: Point<isize>) -> Point<isize> {
 }
 
 impl State {
-    fn new(pos: Point<isize>, dir: Point<isize>, cost: u32, path: Vec<Point<isize>>) -> State {
+    fn new(pos: Point<isize>, dir: Point<isize>, cost: u32, path: Rc<Vec<Point<isize>>>) -> State {
         State {
             pos,
             dir,
