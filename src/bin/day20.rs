@@ -31,9 +31,9 @@ fn main() {
 
     let mut sum1 = 0;
     let mut sum2 = 0;
-    for (steps, pos) in path.iter().enumerate() {
-        for (steps_jump, pos_jump) in path.iter().enumerate().skip(steps + MIN_SAVE as usize) {
-            let dist = (pos_jump.y - pos.y).abs() + (pos_jump.x - pos.x).abs();
+    for (steps, &pos) in path.iter().enumerate() {
+        for (steps_jump, &pos_jump) in path.iter().enumerate().skip(steps + MIN_SAVE as usize) {
+            let dist = (pos_jump - pos).manhattan_dist();
             let steps_save = steps_jump as isize - steps as isize - dist;
             if steps_save >= MIN_SAVE {
                 if dist <= MAX_JUMP_DIST_1 {

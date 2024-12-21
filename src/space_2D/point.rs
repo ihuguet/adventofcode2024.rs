@@ -44,12 +44,20 @@ impl Point<isize> {
             },
         )
     }
+
+    pub fn manhattan_dist(&self) -> isize {
+        self.x.abs() + self.y.abs()
+    }
 }
 
 impl Point<usize> {
     /// panics on underflow
     pub fn add_signed(&self, other: Point<isize>) -> Point<usize> {
         Self::from(other + self.clone().into())
+    }
+
+    pub fn manhattan_dist(&self) -> usize {
+        self.x + self.y
     }
 }
 
